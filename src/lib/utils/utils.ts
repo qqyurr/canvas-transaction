@@ -90,6 +90,8 @@ export function createPhaseData(data: ApiData, startTime: number): ApiData & Pha
 export function updateDataItem(data: ApiData & PhaseData, deltaTime: number, now: number): void {
   if (!data.isActive) return;
 
+  // totalElapsedTime: 데이터가 생성된 이후부터 현재까지의 총 경과 시간(초 단위)
+  // 이전 프레임까지의 경과 시간(data.elapsedTime)에 현재 프레임의 경과 시간(deltaTime)을 더함
   const totalElapsedTime = (data.elapsedTime || 0) + deltaTime;
 
   switch (data.phase) {
@@ -106,12 +108,16 @@ export function updateDataItem(data: ApiData & PhaseData, deltaTime: number, now
 }
 
 function updateStartPhase(data: ApiData & PhaseData, totalElapsedTime: number, now: number): void {
+  // requestElapsedTime: 실제 요청이 시작된 이후의 경과 시간(초 단위)
+  // 총 경과 시간에서 시작 지연 시간(startOffset)을 뺀 값
   const requestElapsedTime = Math.max(0, totalElapsedTime - data.startOffset);
   const position = Math.min(requestElapsedTime, 1);
   const isActive = requestElapsedTime < data.executionTime;
 
   if (position >= 1) {
     data.phase = 'progress';
+    // elapsedTime: 현재 데이터 항목의 애니메이션 진행 상태를 추적하는 누적 시간(초 단위)
+    // 다음 프레임의 totalElapsedTime 계산에 사용됨
     data.elapsedTime = totalElapsedTime;
     data.isActive = true;
     data.endTime = now + data.executionTime * 1000;
@@ -123,6 +129,8 @@ function updateStartPhase(data: ApiData & PhaseData, totalElapsedTime: number, n
 }
 
 function updateProgressPhase(data: ApiData & PhaseData, totalElapsedTime: number, now: number): void {
+  // progressElapsedTime: 진행 단계에서의 경과 시간(초 단위)
+  // 총 경과 시간에서 시작 지연 시간(startOffset)을 뺀 값
   const progressElapsedTime = totalElapsedTime - data.startOffset;
   const isActive = progressElapsedTime < data.executionTime;
 
@@ -156,14 +164,14 @@ export function sortDataByEndTime(data: (ApiData & PhaseData)[]): (ApiData & Pha
   });
 }
 
+// 활성 데이터만 유지
 export function cleanupData(apiData: (ApiData & PhaseData)[]): (ApiData & PhaseData)[] {
   return apiData.filter(data =>
     data.isActive ||
-    (data.elapsedTime <= 1 && data.phase !== 'progress')
+    (data.elapsedTime <= 1 && data.phase === 'end')
   );
 }
 
-// Canvas utility interfaces
 export interface CanvasContext {
   canvas: HTMLCanvasElement;
   ctx: CanvasRenderingContext2D;
