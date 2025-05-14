@@ -1,5 +1,4 @@
 import type { ApiData } from '../../types/types';
-import type { PhaseData } from '$lib/utils/utils';
 import { RECT_CONFIG } from './config';
 import {
   calculateAnimatedPosition,
@@ -8,7 +7,6 @@ import {
 } from '$lib/utils/utils';
 import { drawLeftHalfParallelogram, drawRightHalfParallelogram } from './shapes';
 
-// 사각형 레이어 관련 설정
 const RECT_LAYER_CONFIG = {
   ANIMATION_SPEED: 0.005,
   MAX_RECTANGLES: 15,

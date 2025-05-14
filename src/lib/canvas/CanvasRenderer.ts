@@ -65,11 +65,19 @@ export class CanvasRenderer {
     this.apiData.push(...processedData);
   }
 
-  private updateAndFilterData(): (ApiData & PhaseData)[] {
+  private updateData(): void {
     const now = Date.now();
+
+    // 업데이트 주기 확인
+    if (now - this.lastUpdateTime < this.config.UPDATE_INTERVAL) {
+      return;
+    }
+
     const deltaTime = (now - this.lastFrameTime) / 1000;
     this.lastFrameTime = now;
+    this.lastUpdateTime = now;
 
+    // 정리 주기 확인
     if (now - this.lastCleanupTime > this.config.DATA_CLEANUP_INTERVAL) {
       this.apiData = cleanupData(this.apiData);
       this.lastCleanupTime = now;
@@ -79,18 +87,15 @@ export class CanvasRenderer {
     this.apiData.forEach(data => updateDataItem(data, deltaTime, now));
 
     // 데이터 정렬, 최신 데이터가 마지막에 오도록
-    return sortDataByEndTime(this.apiData);
+    this.apiData = sortDataByEndTime(this.apiData);
   }
 
   // 렌더링 루프
   private render(): void {
     if (!this.isRunning) return;
 
-    const now = Date.now();
-    if (now - this.lastUpdateTime >= this.config.UPDATE_INTERVAL) {
-      this.apiData = this.updateAndFilterData();
-      this.lastUpdateTime = now;
-    }
+    // 데이터 업데이트
+    this.updateData();
 
     // 캔버스 초기화
     this.clearCanvas();

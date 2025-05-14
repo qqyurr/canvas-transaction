@@ -187,7 +187,6 @@ export function createCanvasContext(width: number, height: number, options?: { a
   canvas.width = width;
   canvas.height = height;
 
-  // Optimize rendering
   if ('imageSmoothingEnabled' in ctx) {
     ctx.imageSmoothingEnabled = false;
   }
@@ -204,20 +203,15 @@ export function resetCanvas(layer: CanvasContext): void {
 export function cleanupCanvasContext(layer: CanvasContext): void {
   if (!layer) return;
 
-  // Clear context
   layer.ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
 
-  // Reset canvas size
   layer.canvas.width = 0;
   layer.canvas.height = 0;
 
-  // Clear context again after size reset
   layer.ctx.clearRect(0, 0, 0, 0);
 
-  // Remove canvas from DOM
   layer.canvas.remove();
 
-  // Clear any stored ImageData
   try {
     const imageData = layer.ctx.getImageData(0, 0, 0, 0);
     imageData.data.fill(0);

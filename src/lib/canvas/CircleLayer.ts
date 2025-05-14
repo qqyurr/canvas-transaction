@@ -1,5 +1,4 @@
 import type { ApiData } from '../../types/types';
-import type { PhaseData } from '$lib/utils/utils';
 import { CIRCLE_CONFIG, TRAIL_CONFIG } from './config';
 import {
   createCachedCircleImage,
